@@ -1,0 +1,3 @@
+export {
+    getShop
+} from './shop'

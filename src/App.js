@@ -1,21 +1,20 @@
 import React from 'react'
-import './App.css'
+import './sass/main.scss'
+
+import { Switch, Route } from 'react-router'
+
 import Home from './components/Home'
+import Shop from './containers/Shop'
 
 class App extends React.Component {
-  state = {
-    name: false
-  }
-
-  changeName(event) {
-    this.setState({ name: event.target.value })
-  }
-
   render() {
     return (
       <div className="App">
-        <input type="text" name="name" onChange={(event) => this.changeName(event)} placeholder="Enter your name" />
-        <Home name={this.state.name} />
+      Navigation
+        <Switch>
+        <Route exact path="/" component={Home}/>
+          <Route exact path="/:shop" component={Shop}/>
+        </Switch>
       </div>
     )
   }

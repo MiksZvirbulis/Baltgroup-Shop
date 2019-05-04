@@ -1,9 +1,11 @@
 import React from 'react'
 
-export default function Home(props) {
+const Home = () => {
     return (
         <div>
-            {props.name ? `Hello, ${props.name}` : "No name given..."}
+            You are home... no shop was chosen.
         </div>
     )
 }
+
+export default Home
