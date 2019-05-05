@@ -2,24 +2,38 @@ import React from 'react'
 import { connect } from 'react-redux'
 import * as actions from '../store/actions'
 
-import { Switch, Route } from 'react-router'
-
 import Donate from '../components/Donate'
+import MCGroup from '../components/MCGroup'
 
 class Shop extends React.Component {
+    state = {
+        plugin: null
+    }
+
     componentWillMount () {
-        const { shop } = this.props.match.params
+        const { shop, plugin } = this.props.match.params
         this.props.getShop(shop)
+        if (plugin) {
+            this.setState({ plugin })
+        }
     }
 
     render() {
-        const shop = (
-            <div>
-                Shop Plugins
-                <Route exact path="/flip/donate" component={Donate}/>
-            </div>
-        )
-        return this.props.shop ? shop : "Loading..."
+        let shop = "Loading..."
+        if (this.props.shop) {
+            const plugin = this.state.plugin
+            const isPluginActive = this.props.shop.menu.find(item => item.type === plugin)
+            const pluginMenu = this.props.shop.menu.map(item => { return (<li key={item.url}>{item.title}</li>) })
+            shop = (
+                <div>
+                    <h1>Welcome to {this.props.shop.title}</h1>
+                    <ul>{pluginMenu}</ul>
+                    {(plugin === "donate" && isPluginActive) ? <Donate /> : null}
+                    {(plugin === "mc_group" && isPluginActive) ? <MCGroup /> : null}
+                </div>
+            )
+        }
+        return shop
     }
 }
 

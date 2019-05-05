@@ -10,10 +10,10 @@ class App extends React.Component {
   render() {
     return (
       <div className="App">
-      Navigation
         <Switch>
         <Route exact path="/" component={Home}/>
-          <Route exact path="/:shop" component={Shop}/>
+        <Route exact path="/:shop" component={Shop}/>
+        <Route exact path="/:shop/:plugin" component={Shop}/>
         </Switch>
       </div>
     )

@@ -1,14 +1,14 @@
 import { updateObject } from '../../utils/updateObject'
 
 const initialState = {
-    shopData: {},
+    shopData: null,
     error: null
 }
 
 export default function shop(state = initialState, action) {
     switch (action.type) {
         case 'GET_SHOP':
-        return updateObject(state, { shopData: {}, error: null })
+        return updateObject(state, { shopData: null, error: null })
         case 'GET_SHOP_ERROR':
         return updateObject(state, { error: action.error })
         case 'GET_SHOP_SUCCESS':

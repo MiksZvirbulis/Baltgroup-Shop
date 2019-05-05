@@ -1,4 +1,6 @@
-//import axios from 'axios'
+import axios from 'axios'
+
+const API_URL = ''
 
 export const getShopStarted = () => {
     return {
@@ -13,22 +15,25 @@ export const getShopSuccess = shopData => {
     }
 }
 
-export const getShopError = () => {
+export const getShopError = error => {
     return {
-        type: "GET_SHOP_ERROR"
+        type: "GET_SHOP_ERROR",
+        error
     }
 }
 
 export const getShop = slug => {
-    return dispatch => {
+    return async dispatch => {
         dispatch(getShopStarted())
-        // API request
-        dispatch(getShopSuccess(
-            {
-                name: "FLIP",
-                slug: "flip",
-                plugins: ['Donate']
+        try {
+            const response = await axios.get(`${API_URL}/?method=shopinfo&sid=1`)
+            if (response.status !== 404) {
+                dispatch(getShopSuccess(response.data))
+            } else {
+                dispatch(getShopError(response.error.message))
             }
-        ))
+        } catch (error) {
+            dispatch(getShopError(error))
+        }
     }
 }
