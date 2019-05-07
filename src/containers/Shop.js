@@ -33,7 +33,8 @@ class Shop extends React.Component {
         let shop = "Loading..."
         if (this.props.shop) {
             const plugin = this.state.plugin
-            const isPluginActive = this.props.shop.menu.find(item => item.type === plugin)
+            //const isPluginActive = this.props.shop.menu.find(item => item.type === plugin)
+            const isPluginActive = true
             const pluginMenu = this.props.shop.menu.map(item => {
                 return (
                     <NavLink to={`/${this.state.shop}/${item.type}`} className="nav-link" key={item.url}>
