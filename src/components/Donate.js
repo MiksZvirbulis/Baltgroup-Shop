@@ -1,12 +1,18 @@
 import React from 'react'
 
+import { connect } from 'react-redux'
+import * as actions from '../store/actions'
+
 import { Input } from './Input'
 
 class Donate extends React.Component {
     state = {
         formData: {
             username: {
-                type: "text",
+                attr: {
+                    type: "text",
+                    placeholder: "Tavs vārds"
+                },
                 value: "",
                 valid: true,
                 rules: {
@@ -15,7 +21,10 @@ class Donate extends React.Component {
                 }
             },
             comment: {
-                type: "text",
+                attr: {
+                    type: "text",
+                    placeholder: "Tavs komentārs"
+                },
                 value: "",
                 valid: true,
                 rules: {
@@ -24,35 +33,78 @@ class Donate extends React.Component {
                 }
             },
             price: {
-                type: "select",
+                attr: {
+                    type: "select",
+                    placeholder: "Ziedojuma cena",
+                    onChange: () => {
+                        console.log("test")
+                    },
+                },
                 value: [
-                    { value: 100, display: '1.00 EUR' },
-                    { value: 150, display: '1.50 EUR' },
-                    { value: 200, display: '2.00 EUR' }
+                    { value: 1, display: '1.00 EUR' },
+                    { value: 1.5, display: '1.50 EUR' },
+                    { value: 2.0, display: '2.00 EUR' }
                 ],
                 valid: true
             },
             code: {
-                type: "text",
+                attr: {
+                    type: "hidden",
+                    placeholder: "Saņemtais kods",
+
+                },
                 value: "",
                 valid: true
             }
         },
+        payment: null,
         formValid: false
+    }
+
+    handleSMS() {
+        this.props.getSMSKey(1)
+        this.setState({ payment: "sms"})
+    }
+
+    handlePayPal() {
+        this.setState({ payment: "paypal" })
     }
 
     render() {
         let formData = []
         for (let key in this.state.formData) {
-            formData.push(this.state.formData[key])
+            formData.push({ id: key, ...this.state.formData[key] })
         }
         return (
             <div>
                 <h3>Donate</h3>
-                {formData.map((input, index) => <Input key={index} {...input} /> )}
+                <form>
+                    {formData.map((input, index) => <Input key={index} {...input} /> )}
+                    {(this.state.payment === "sms" && this.props.smsKey !== null) ?
+                    <div className="alert alert-primary" role="alert">
+                        Sūti SMS ar kodu {this.props.smsKey} {this.props.shop.smskey} uz numuru 1881.<br />
+                        <small>Maksa (EUR) tiks pievienota telefona rēķinam vai atrēķināta no priekšapmaksas kartes.</small>
+                    </div>
+                    : ""}
+                    <button className="btn btn-primary" type="button" onClick={() => this.handlePayPal()}>PayPal</button>
+                    <button className="btn btn-primary" type="button" onClick={() => this.handleSMS()}>SMS</button>
+                </form>
             </div>
         )
     }
 }
 
-export default Donate
+const mapStateToProps = state => {
+    return {
+        shop: state.shop.shopData,
+        smsKey: state.shop.smsKey
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        getSMSKey: price => dispatch(actions.getSMSKey(price))
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Donate)

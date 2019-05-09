@@ -1,16 +1,25 @@
 import React from 'react'
 
 export const Input = props => {
-    switch(props.type) {
+    switch(props.attr.type) {
         case 'text':
-        return <input type="text" defaultValue={props.value} />
+        return (
+            <div className="form-group">
+                <label htmlFor={props.id}>{props.attr.placeholder}</label>
+                <input className="form-control" id={props.id} type="text" {...props.attr} defaultValue={props.value} />
+            </div>
+        )
         case 'select':
         return (
-            <select>
-                {props.value.map(option => <option key={option.value} value={option.value}>{option.display}</option> )}
-            </select>
+            <div className="form-group">
+                <label htmlFor={props.id}>{props.attr.placeholder}</label>
+                <select className="form-control" id={props.id} defaultValue="placeholder">
+                    <option value="placeholder" disabled>{props.attr.placeholder}</option>
+                    {props.value.map(option => <option key={option.value} value={option.value}>{option.display}</option> )}
+                </select>
+            </div>
         )
         default:
-        return
+        return null
     }
 }

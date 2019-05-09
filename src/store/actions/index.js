@@ -1,3 +1,4 @@
 export {
-    getShop
+    getShop,
+    getSMSKey
 } from './shop'
