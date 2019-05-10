@@ -28,15 +28,18 @@ export const getShop = slug => {
     return async dispatch => {
         dispatch(getShopStarted())
         try {
-            const response = await axios.get(`${API_URL}/?method=shopinfo&sid=${slug}`)
-            if (response.data.id !== null) {
+            const response = await axios.get(`${API_URL}/?method=shopinfo&slug=${slug}`)
+            if (response.status !== 404) {
                 dispatch(getShopSuccess(response.data))
             } else {
-                //dispatch(getShopError(response.error.message))
-                dispatch(getShopError("Shop was not found..."))
+                dispatch(getShopError(response.error.message))
             }
         } catch (error) {
-            dispatch(getShopError(error))
+            if (error.response.status === 404) {
+                dispatch(getShopError("Shop was not found..."))
+            } else {
+                dispatch(getShopError(error.message))
+            }
         }
     }
 }

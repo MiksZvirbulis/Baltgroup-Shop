@@ -70,6 +70,19 @@ class Donate extends React.Component {
         this.setState({ payment: "paypal" })
     }
 
+    handleChange(input, event) {
+        const currentForm = this.state.formData
+        const currentInput = this.state.formData[input.id]
+        this.setState({ formData: {
+            ...currentForm,
+            [input.id]: {
+                ...currentInput,
+                value: event.target.value
+            }
+        }
+        })
+    }
+
     render() {
         let formData = []
         for (let key in this.state.formData) {
@@ -79,10 +92,10 @@ class Donate extends React.Component {
             <div>
                 <h3>Donate</h3>
                 <form>
-                    {formData.map((input, index) => <Input key={index} {...input} /> )}
+                    {formData.map((input, index) => <Input change={(event) => this.handleChange(input, event)} key={index} {...input} /> )}
                     {(this.state.payment === "sms" && this.props.smsKey !== null) ?
                     <div className="alert alert-primary" role="alert">
-                        Sūti SMS ar kodu {this.props.smsKey} {this.props.shop.smskey} uz numuru 1881.<br />
+                        Sūti SMS ar kodu {this.props.smsKey} B{this.props.shop.smskey} uz numuru 1881.<br />
                         <small>Maksa (EUR) tiks pievienota telefona rēķinam vai atrēķināta no priekšapmaksas kartes.</small>
                     </div>
                     : ""}

@@ -6,7 +6,7 @@ export const Input = props => {
         return (
             <div className="form-group">
                 <label htmlFor={props.id}>{props.attr.placeholder}</label>
-                <input className="form-control" id={props.id} type="text" {...props.attr} defaultValue={props.value} />
+                <input className="form-control" onChange={props.change} id={props.id} type="text" {...props.attr} defaultValue={props.value} />
             </div>
         )
         case 'select':
