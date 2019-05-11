@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 const API_URL = ''
+const API_URL_V2 = ''
 
 // Get shop data depending on requested slug
 
@@ -70,7 +71,7 @@ export const getSMSKey = price => {
     return async dispatch => {
         dispatch(getSMSKeyStarted())
         try {
-            const response = await axios.get(`/?type=post&price=${price}`)
+            const response = await axios.get(`${API_URL_V2}/?type=post&price=${price}`)
             if (response.data !== "wrongprice") {
                 dispatch(getSMSKeySuccess(response.data))
             } else {

@@ -40,18 +40,18 @@ class Donate extends React.Component {
                         console.log("test")
                     },
                 },
-                value: [
+                options: [
                     { value: 1, display: '1.00 EUR' },
                     { value: 1.5, display: '1.50 EUR' },
                     { value: 2.0, display: '2.00 EUR' }
                 ],
+                value: 0,
                 valid: true
             },
             code: {
                 attr: {
                     type: "hidden",
-                    placeholder: "Saņemtais kods",
-
+                    placeholder: "Saņemtais kods"
                 },
                 value: "",
                 valid: true
@@ -73,11 +73,18 @@ class Donate extends React.Component {
     handleChange(input, event) {
         const currentForm = this.state.formData
         const currentInput = this.state.formData[input.id]
+        let newValue = event.target.value
+        if (input.id === "price") {
+            newValue = Number(newValue)
+            if (this.state.payment === "sms") {
+                this.props.getSMSKey(1)
+            }
+        }
         this.setState({ formData: {
             ...currentForm,
             [input.id]: {
                 ...currentInput,
-                value: event.target.value
+                value: newValue
             }
         }
         })
@@ -89,20 +96,26 @@ class Donate extends React.Component {
             formData.push({ id: key, ...this.state.formData[key] })
         }
         return (
-            <div>
+            <>
                 <h3>Donate</h3>
                 <form>
                     {formData.map((input, index) => <Input change={(event) => this.handleChange(input, event)} key={index} {...input} /> )}
                     {(this.state.payment === "sms" && this.props.smsKey !== null) ?
                     <div className="alert alert-primary" role="alert">
                         Sūti SMS ar kodu {this.props.smsKey} B{this.props.shop.smskey} uz numuru 1881.<br />
-                        <small>Maksa (EUR) tiks pievienota telefona rēķinam vai atrēķināta no priekšapmaksas kartes.</small>
+                        <small>Maksa ({this.state.formData.price.value.toFixed(2)} EUR) tiks pievienota telefona rēķinam vai atrēķināta no priekšapmaksas kartes.</small>
                     </div>
                     : ""}
-                    <button className="btn btn-primary" type="button" onClick={() => this.handlePayPal()}>PayPal</button>
-                    <button className="btn btn-primary" type="button" onClick={() => this.handleSMS()}>SMS</button>
+                    {this.state.formData.price.value !== 0 ?
+                    (
+                        <>
+                        <button className="btn btn-primary" type="button" onClick={() => this.handlePayPal()}>PayPal</button>
+                        <button className="btn btn-primary" type="button" onClick={() => this.handleSMS()}>SMS</button>
+                        </>
+                    ) : null}
+                    
                 </form>
-            </div>
+            </>
         )
     }
 }
