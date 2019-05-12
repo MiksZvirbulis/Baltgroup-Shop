@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import * as actions from '../store/actions'
 
 import { htmlDecode } from '../utils/htmlDecode'
+import { Input } from '../components/Input'
 
 import { NavLink } from 'react-router-dom'
 
@@ -14,12 +15,37 @@ import MCUnban from '../components/MCUnban'
 class Shop extends React.Component {
     state = {
         plugin: null,
-        shop: null
+        shop: null,
+        playerNameInput: {
+            attr: {
+                type: "text",
+                placeholder: "Tavs vārds"
+            },
+            value: "",
+            valid: true,
+            rules: {
+                minChars: 3,
+                maxChars: 25
+            }
+        }
+    }
+
+    handleChange(input, event) {
+        const currentInput = this.state.playerNameInput
+        this.setState({ playerNameInput: {
+            ...currentInput,
+            value: event.target.value
+        } })
+    }
+
+    handlePlayerForm() {
+        this.props.setPlayerName(this.state.playerNameInput.value)
     }
 
     componentWillMount () {
         let { shop, plugin } = this.props.match.params
         this.props.getShop(shop)
+        this.props.getPlayerName()
         this.setState({ plugin, shop })
     }
 
@@ -27,7 +53,7 @@ class Shop extends React.Component {
         if (nextProps.match.params.plugin !== this.props.match.params.plugin) {
           this.setState({ plugin: nextProps.match.params.plugin })
         }
-      }
+    }
 
     render() {
         let shop = "Loading..."
@@ -42,6 +68,22 @@ class Shop extends React.Component {
                     </NavLink>
                 )
             })
+            const plugins = (
+                <>
+                    {(plugin === "donate" && isPluginActive) ? <Donate /> : null}
+                    {(plugin === "mc_group" && isPluginActive) ? <MCGroup /> : null}
+                    {(plugin === "mc_unban" && isPluginActive) ? <MCUnban /> : null}
+                    {(plugin === "mc_crates" && isPluginActive) ? <MCCrates /> : null}
+                </>
+            )
+            const playerNameForm = (
+                <>
+                <form>
+                    <Input change={(event) => this.handleChange(this.state.playerNameInput, event)} {...this.state.playerNameInput} />
+                    <button className="btn btn-primary" type="button" onClick={() => this.handlePlayerForm()}>OK</button>
+                </form>
+                </>
+            )
             shop = (
                 <div>
                     <h3 className="mb-0" style={{textAlign: 'center'}}>{this.props.shop.title}</h3>
@@ -49,10 +91,8 @@ class Shop extends React.Component {
                     <ul className="nav nav-pills">
                         {pluginMenu}
                     </ul>
-                    {(plugin === "donate" && isPluginActive) ? <Donate /> : null}
-                    {(plugin === "mc_group" && isPluginActive) ? <MCGroup /> : null}
-                    {(plugin === "mc_unban" && isPluginActive) ? <MCUnban /> : null}
-                    {(plugin === "mc_crates" && isPluginActive) ? <MCCrates /> : null}
+                    { this.props.playerName === null ? playerNameForm : plugins}
+                    
                 </div>
             )
         }
@@ -66,13 +106,16 @@ class Shop extends React.Component {
 const mapStateToProps = state => {
     return {
         shop: state.shop.shopData,
+        playerName: state.shop.playerName,
         error: state.shop.error
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        getShop: slug => dispatch(actions.getShop(slug))
+        getShop: slug => dispatch(actions.getShop(slug)),
+        getPlayerName: () => dispatch(actions.getPlayerName()),
+        setPlayerName: playerName => dispatch(actions.setPlayerName(playerName))
     }
 }
 

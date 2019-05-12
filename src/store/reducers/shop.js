@@ -3,7 +3,8 @@ import { updateObject } from '../../utils/updateObject'
 const initialState = {
     shopData: null,
     error: null,
-    smsKey: null
+    smsKey: null,
+    playerName: null
 }
 
 export default function shop(state = initialState, action) {
@@ -20,6 +21,18 @@ export default function shop(state = initialState, action) {
         return updateObject(state, { error: action.error })
         case 'GET_SMS_KEY_SUCCESS':
         return updateObject(state, { smsKey: action.smsKey })
+        case 'SET_PLAYER_NAME':
+        return updateObject(state, { error: null, playerName: null })
+        case 'SET_PLAYER_NAME_ERROR':
+        return updateObject(state, { error: action.error })
+        case 'SET_PLAYER_NAME_SUCCESS':
+        return updateObject(state, { playerName: action.playerName })
+        case 'GET_PLAYER_NAME':
+        return updateObject(state, { error: null, playerName: null })
+        case 'GET_PLAYER_NAME_ERROR':
+        return updateObject(state, { error: action.error })
+        case 'GET_PLAYER_NAME_SUCCESS':
+        return updateObject(state, { playerName: action.playerName })
         default:
         return state
     }

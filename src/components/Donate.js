@@ -62,7 +62,7 @@ class Donate extends React.Component {
     }
 
     handleSMS() {
-        this.props.getSMSKey(1)
+        this.props.getSMSKey(this.state.formData.price.value)
         this.setState({ payment: "sms"})
     }
 
@@ -77,7 +77,7 @@ class Donate extends React.Component {
         if (input.id === "price") {
             newValue = Number(newValue)
             if (this.state.payment === "sms") {
-                this.props.getSMSKey(1)
+                this.props.getSMSKey(newValue)
             }
         }
         this.setState({ formData: {
@@ -102,7 +102,7 @@ class Donate extends React.Component {
                     {formData.map((input, index) => <Input change={(event) => this.handleChange(input, event)} key={index} {...input} /> )}
                     {(this.state.payment === "sms" && this.props.smsKey !== null) ?
                     <div className="alert alert-primary" role="alert">
-                        Sūti SMS ar kodu {this.props.smsKey} B{this.props.shop.smskey} uz numuru 1881.<br />
+                        {this.props.smsKey === null ? "Loading..." : `Sūti SMS ${this.props.shop.smskey} B${this.props.smsKey} uz numuru 1881.`}<br />
                         <small>Maksa ({this.state.formData.price.value.toFixed(2)} EUR) tiks pievienota telefona rēķinam vai atrēķināta no priekšapmaksas kartes.</small>
                     </div>
                     : ""}

@@ -1,4 +1,6 @@
 export {
     getShop,
-    getSMSKey
+    getSMSKey,
+    setPlayerName,
+    getPlayerName
 } from './shop'
