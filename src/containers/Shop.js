@@ -38,8 +38,15 @@ class Shop extends React.Component {
         } })
     }
 
-    handlePlayerForm() {
+    handlePlayerForm(event) {
+        event.preventDefault()
         this.props.setPlayerName(this.state.playerNameInput.value)
+        this.setState({ playerNameInput: { ...this.state.playerNameInput, value: "" } })
+    }
+
+    handleLogout(event) {
+        event.preventDefault()
+        this.props.removePlayerName()
     }
 
     componentWillMount () {
@@ -80,7 +87,7 @@ class Shop extends React.Component {
                 <>
                 <form>
                     <Input change={(event) => this.handleChange(this.state.playerNameInput, event)} {...this.state.playerNameInput} />
-                    <button className="btn btn-primary" type="button" onClick={() => this.handlePlayerForm()}>OK</button>
+                    <button className="btn btn-primary" type="submit" onClick={(event) => this.handlePlayerForm(event)}>Ok</button>
                 </form>
                 </>
             )
@@ -88,8 +95,10 @@ class Shop extends React.Component {
                 <div>
                     <h3 className="mb-0" style={{textAlign: 'center'}}>{this.props.shop.title}</h3>
                     <p className="mt-2" dangerouslySetInnerHTML={{__html: htmlDecode(this.props.shop.hellotext)}}></p>
+                    <h3 className="mb-0"><center>{this.props.playerName ? `Sveiks, ${this.props.playerName}` : `Izvēlies spēlētāja vārdu`}</center></h3>
                     <ul className="nav nav-pills">
                         {pluginMenu}
+                        {this.props.playerName ? <li className="nav-item"><a href="/logout" className="nav-link" onClick={(event) => this.handleLogout(event)}>Izlogoties</a></li> : ""}
                     </ul>
                     { this.props.playerName === null ? playerNameForm : plugins}
                     
@@ -115,7 +124,8 @@ const mapDispatchToProps = dispatch => {
     return {
         getShop: slug => dispatch(actions.getShop(slug)),
         getPlayerName: () => dispatch(actions.getPlayerName()),
-        setPlayerName: playerName => dispatch(actions.setPlayerName(playerName))
+        setPlayerName: playerName => dispatch(actions.setPlayerName(playerName)),
+        removePlayerName: () => dispatch(actions.removePlayerName())
     }
 }
 

@@ -8,18 +8,6 @@ import { Input } from './Input'
 class Donate extends React.Component {
     state = {
         formData: {
-            username: {
-                attr: {
-                    type: "text",
-                    placeholder: "Tavs vārds"
-                },
-                value: "",
-                valid: true,
-                rules: {
-                    minChars: 3,
-                    maxChars: 25
-                }
-            },
             comment: {
                 attr: {
                     type: "text",
@@ -36,9 +24,6 @@ class Donate extends React.Component {
                 attr: {
                     type: "select",
                     placeholder: "Ziedojuma cena",
-                    onChange: () => {
-                        console.log("test")
-                    },
                 },
                 options: [
                     { value: 1, display: '1.00 EUR' },
@@ -97,7 +82,7 @@ class Donate extends React.Component {
         }
         return (
             <>
-                <h3>Donate</h3>
+                <h3>Ziedot</h3>
                 <form>
                     {formData.map((input, index) => <Input change={(event) => this.handleChange(input, event)} key={index} {...input} /> )}
                     {(this.state.payment === "sms" && this.props.smsKey !== null) ?
@@ -105,12 +90,20 @@ class Donate extends React.Component {
                         {this.props.smsKey === null ? "Loading..." : `Sūti SMS ${this.props.shop.smskey} B${this.props.smsKey} uz numuru 1881.`}<br />
                         <small>Maksa ({this.state.formData.price.value.toFixed(2)} EUR) tiks pievienota telefona rēķinam vai atrēķināta no priekšapmaksas kartes.</small>
                     </div>
-                    : ""}
+                    : (
+                        this.state.payment === "paypal" ? 
+                        <div className="alert alert-primary" role="alert">
+                            PAYPAL POGA<br />
+                            <small>Maksa ({this.state.formData.price.value.toFixed(2)} EUR) tiks pievienota telefona rēķinam vai atrēķināta no priekšapmaksas kartes.</small>
+                        </div>
+                        : ""
+                    )
+                    }
                     {this.state.formData.price.value !== 0 ?
                     (
                         <>
-                        <button className="btn btn-primary" type="button" onClick={() => this.handlePayPal()}>PayPal</button>
-                        <button className="btn btn-primary" type="button" onClick={() => this.handleSMS()}>SMS</button>
+                        <button className="btn btn-primary" type="button" onClick={() => this.handlePayPal()} disabled={this.state.payment === "paypal" ? "disabled" : null}>PayPal</button>
+                        <button className="btn btn-primary" type="button" onClick={() => this.handleSMS()} disabled={this.state.payment === "sms" ? "disabled" : null}>SMS</button>
                         </>
                     ) : null}
                     

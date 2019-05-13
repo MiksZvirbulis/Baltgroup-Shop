@@ -80,7 +80,7 @@ export const getSMSKey = price => {
                 dispatch(getSMSKeyError("Shop was not found..."))
             }
         } catch (error) {
-            dispatch(getSMSKeyError(error))
+            dispatch(getSMSKeyError(error.message))
         }
     }
 }
@@ -115,7 +115,7 @@ export const setPlayerName = playerName => {
             await cookies.set("playerName", playerName, { path: "/" })
             dispatch(setPlayerNameSuccess(playerName))
         } catch (error) {
-            dispatch(setPlayerNameError(error))
+            dispatch(setPlayerNameError(error.message))
         }
     }
 }
@@ -151,7 +151,46 @@ export const getPlayerName = () => {
             playerName = playerName === undefined ? null : playerName
             dispatch(getPlayerNameSuccess(playerName))
         } catch (error) {
-            dispatch(getPlayerNameError(error))
+            dispatch(getPlayerNameError(error.message))
+        }
+    }
+}
+
+// Remove Player Name
+
+const removePlayerNameStarted = () => {
+    return {
+        type: "REMOVE_PLAYER_NAME"
+    }
+}
+
+const removePlayerNameSuccess = () => {
+    return {
+        type: "REMOVE_PLAYER_NAME_SUCCESS"
+    }
+}
+
+const removePlayerNameError = error => {
+    return {
+        type: "REMOVE_PLAYER_NAME_ERROR",
+        error
+    }
+}
+
+export const removePlayerName = () => {
+    return async dispatch => {
+        dispatch(removePlayerNameStarted())
+        const cookies = new Cookies()
+        try {
+            const playerName = await cookies.get("playerName")
+            if (playerName === undefined) {
+                dispatch(removePlayerNameError("Spēlētāja vārds netika atrasts"))
+            } else {
+                cookies.remove("playerName", { path: '/' })
+                dispatch(removePlayerNameSuccess())
+            }
+        } catch (error) {
+            dispatch(removePlayerNameError(error.message))
         }
     }
 }
