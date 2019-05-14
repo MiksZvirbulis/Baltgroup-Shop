@@ -43,16 +43,26 @@ class Donate extends React.Component {
             }
         },
         payment: null,
-        formValid: false
+        formValid: false,
+        paymentInterval: null
+    }
+
+    checkKeyInterval() {
+        this.setState({ paymentInterval: setInterval(() => this.props.checkSMSKey("B" + this.props.smsKey), 5000) })
     }
 
     handleSMS() {
         this.props.getSMSKey(this.state.formData.price.value)
         this.setState({ payment: "sms"})
+        this.checkKeyInterval()
     }
 
     handlePayPal() {
         this.setState({ payment: "paypal" })
+    }
+
+    handleDonate() {
+        console.log("Handling donation...")
     }
 
     handleChange(input, event) {
@@ -76,6 +86,10 @@ class Donate extends React.Component {
     }
 
     render() {
+        if (this.props.smsKeyPaid === true) {
+            clearInterval(this.state.paymentInterval)
+        }
+        
         let formData = []
         for (let key in this.state.formData) {
             formData.push({ id: key, ...this.state.formData[key] })
@@ -104,6 +118,9 @@ class Donate extends React.Component {
                         <>
                         <button className="btn btn-primary" type="button" onClick={() => this.handlePayPal()} disabled={this.state.payment === "paypal" ? "disabled" : null}>PayPal</button>
                         <button className="btn btn-primary" type="button" onClick={() => this.handleSMS()} disabled={this.state.payment === "sms" ? "disabled" : null}>SMS</button>
+                        {this.props.smsKeyPaid === true ?
+                            <button className="btn btn-primary" type="button" onClick={() => this.handleDonate()}>Apstiprināt</button>
+                        : null}
                         </>
                     ) : null}
                     
@@ -116,13 +133,15 @@ class Donate extends React.Component {
 const mapStateToProps = state => {
     return {
         shop: state.shop.shopData,
-        smsKey: state.shop.smsKey
+        smsKey: state.shop.smsKey,
+        smsKeyPaid: state.shop.smsKeyPaid
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        getSMSKey: price => dispatch(actions.getSMSKey(price))
+        getSMSKey: price => dispatch(actions.getSMSKey(price)),
+        checkSMSKey: SMSKey => dispatch(actions.checkSMSKey(SMSKey))
     }
 }
 

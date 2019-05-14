@@ -4,6 +4,7 @@ const initialState = {
     shopData: null,
     error: null,
     smsKey: null,
+    smsKeyPaid: false,
     playerName: null
 }
 
@@ -23,6 +24,13 @@ export default function shop(state = initialState, action) {
         return updateObject(state, { error: action.error })
         case 'GET_SMS_KEY_SUCCESS':
         return updateObject(state, { smsKey: action.smsKey })
+        // Check SMS key
+        case 'CHECK_SMS_KEY':
+        return updateObject(state, { error: null, smsKeyPaid: false })
+        case 'CHECK_SMS_KEY_ERROR':
+        return updateObject(state, { smsKeyPaid: false })
+        case 'CHECK_SMS_KEY_SUCCESS':
+        return updateObject(state, { smsKeyPaid: true })
         // Set player name used for shopping
         case 'SET_PLAYER_NAME':
         return updateObject(state, { error: null, playerName: null })

@@ -76,11 +76,47 @@ export const getSMSKey = price => {
             if (response.data !== "wrongprice") {
                 dispatch(getSMSKeySuccess(response.data))
             } else {
-                //dispatch(getShopError(response.error.message))
-                dispatch(getSMSKeyError("Shop was not found..."))
+                dispatch(getSMSKeyError("Pieprasītais veikals netika atrasts..."))
             }
         } catch (error) {
             dispatch(getSMSKeyError(error.message))
+        }
+    }
+}
+
+// Check SMS Key
+
+const checkSMSKeyStarted = () => {
+    return {
+        type: "CHECK_SMS_KEY"
+    }
+}
+
+const checkSMSKeySuccess = () => {
+    return {
+        type: "CHECK_SMS_KEY_SUCCESS"
+    }
+}
+
+const checkSMSKeyError = error => {
+    return {
+        type: "CHECK_SMS_KEY_ERROR",
+        error
+    }
+}
+
+export const checkSMSKey = smsKey => {
+    return async dispatch => {
+        dispatch(checkSMSKeyStarted())
+        try {
+            const response = await axios.get(`${API_URL_V2}/?type=get&pid=${smsKey}`)
+            if (typeof response.data === "object") {
+                dispatch(checkSMSKeySuccess())
+            } else {
+                dispatch(checkSMSKeyError("SMS atslēgta nav apmaksāta"))
+            }
+        } catch (error) {
+            dispatch(checkSMSKeyError(error.message))
         }
     }
 }

@@ -3,5 +3,6 @@ export {
     getSMSKey,
     setPlayerName,
     getPlayerName,
-    removePlayerName
+    removePlayerName,
+    checkSMSKey
 } from './shop'
