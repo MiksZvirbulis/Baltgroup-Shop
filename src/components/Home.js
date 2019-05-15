@@ -3,7 +3,7 @@ import React from 'react'
 const Home = () => {
     return (
         <div>
-            You are home... no shop was chosen.
+            Neviens veikals netika izvēlēts.
         </div>
     )
 }

@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import * as actions from '../store/actions'
 
 import { Input } from './Input'
+import { isValid } from '../utils/isValid'
 
 class Donate extends React.Component {
     state = {
@@ -14,7 +15,7 @@ class Donate extends React.Component {
                     placeholder: "Tavs komentārs"
                 },
                 value: "",
-                valid: true,
+                valid: { isValid: null, messages: [] },
                 rules: {
                     minChars: 3,
                     maxChars: 75
@@ -31,7 +32,7 @@ class Donate extends React.Component {
                     { value: 2.0, display: '2.00 EUR' }
                 ],
                 value: 0,
-                valid: true
+                valid: { isValid: null, messages: [] }
             },
             code: {
                 attr: {
@@ -39,7 +40,7 @@ class Donate extends React.Component {
                     placeholder: "Saņemtais kods"
                 },
                 value: "",
-                valid: true
+                valid: { isValid: null, messages: [] }
             }
         },
         payment: null,
@@ -75,14 +76,29 @@ class Donate extends React.Component {
                 this.props.getSMSKey(newValue)
             }
         }
+        const validation = input.rules ? isValid(newValue, input.rules) : { isValid: true, messages: [] }
+        let formValid = true
+        for (let formInput in this.state.formData) {
+            if (formInput === input.id) {
+                formValid = validation.isValid
+            } else {
+                formValid = this.state.formData[formInput].valid.isValid === true ? true : false
+            }
+        }
         this.setState({ formData: {
             ...currentForm,
             [input.id]: {
                 ...currentInput,
-                value: newValue
-            }
-        }
+                value: newValue,
+                valid: {
+                    isValid: validation.isValid,
+                    messages: validation.messages
+                }
+            },
+        },
+        formValid
         })
+        console.log(formValid)
     }
 
     render() {

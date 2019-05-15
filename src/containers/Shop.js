@@ -22,7 +22,7 @@ class Shop extends React.Component {
                 placeholder: "Tavs vārds"
             },
             value: "",
-            valid: true,
+            valid: null,
             rules: {
                 minChars: 3,
                 maxChars: 25
@@ -63,7 +63,7 @@ class Shop extends React.Component {
     }
 
     render() {
-        let shop = "Loading..."
+        let shop = <div className="spinner-border text-primary" role="status"><span className="sr-only">Loading...</span></div>
         if (this.props.shop) {
             const plugin = this.state.plugin
             //const isPluginActive = this.props.shop.menu.find(item => item.type === plugin)
