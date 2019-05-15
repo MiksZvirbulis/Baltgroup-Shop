@@ -4,6 +4,7 @@ import * as actions from '../store/actions'
 
 import { htmlDecode } from '../utils/htmlDecode'
 import { Input } from '../components/Input'
+import { isValid } from '../utils/isValid'
 
 import { NavLink } from 'react-router-dom'
 
@@ -22,7 +23,7 @@ class Shop extends React.Component {
                 placeholder: "Tavs vārds"
             },
             value: "",
-            valid: null,
+            valid: { isValid: null, messages: []},
             rules: {
                 minChars: 3,
                 maxChars: 25
@@ -32,9 +33,11 @@ class Shop extends React.Component {
 
     handleChange(input, event) {
         const currentInput = this.state.playerNameInput
+        const validation = isValid(event.target.value, input.rules)
         this.setState({ playerNameInput: {
             ...currentInput,
-            value: event.target.value
+            value: event.target.value,
+            valid: { isValid: validation.isValid, messages: validation.messages }
         } })
     }
 
@@ -63,7 +66,7 @@ class Shop extends React.Component {
     }
 
     render() {
-        let shop = <div className="spinner-border text-primary" role="status"><span className="sr-only">Loading...</span></div>
+        let shop = <div className="spinner-border text-primary" role="status"><span className="sr-only">Ielādējam...</span></div>
         if (this.props.shop) {
             const plugin = this.state.plugin
             //const isPluginActive = this.props.shop.menu.find(item => item.type === plugin)
