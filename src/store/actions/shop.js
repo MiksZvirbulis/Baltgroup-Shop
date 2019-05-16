@@ -1,8 +1,6 @@
 import axios from 'axios'
 import Cookies from 'universal-cookie'
-
-const API_URL = ''
-const API_URL_V2 = ''
+import config from '../../config'
 
 // Get shop data depending on requested slug
 
@@ -30,7 +28,7 @@ export const getShop = slug => {
     return async dispatch => {
         dispatch(getShopStarted())
         try {
-            const response = await axios.get(`${API_URL}/?method=shopinfo&slug=${slug}`)
+            const response = await axios.get(`${config.SHOP_API}/shop/?method=shopinfo&slug=${slug}`)
             if (response.status !== 404) {
                 dispatch(getShopSuccess(response.data))
             } else {
@@ -42,81 +40,6 @@ export const getShop = slug => {
             } else {
                 dispatch(getShopError(error.message))
             }
-        }
-    }
-}
-
-// Get SMS Key depending on price
-
-const getSMSKeyStarted = () => {
-    return {
-        type: "GET_SMS_KEY"
-    }
-}
-
-const getSMSKeySuccess = smsKey => {
-    return {
-        type: "GET_SMS_KEY_SUCCESS",
-        smsKey
-    }
-}
-
-const getSMSKeyError = error => {
-    return {
-        type: "GET_SMS_KEY_ERROR",
-        error
-    }
-}
-
-export const getSMSKey = price => {
-    return async dispatch => {
-        dispatch(getSMSKeyStarted())
-        try {
-            const response = await axios.get(`${API_URL_V2}/?type=post&price=${price}`)
-            if (response.data !== "wrongprice") {
-                dispatch(getSMSKeySuccess(response.data))
-            } else {
-                dispatch(getSMSKeyError("Pieprasītais veikals netika atrasts..."))
-            }
-        } catch (error) {
-            dispatch(getSMSKeyError(error.message))
-        }
-    }
-}
-
-// Check SMS Key
-
-const checkSMSKeyStarted = () => {
-    return {
-        type: "CHECK_SMS_KEY"
-    }
-}
-
-const checkSMSKeySuccess = () => {
-    return {
-        type: "CHECK_SMS_KEY_SUCCESS"
-    }
-}
-
-const checkSMSKeyError = error => {
-    return {
-        type: "CHECK_SMS_KEY_ERROR",
-        error
-    }
-}
-
-export const checkSMSKey = smsKey => {
-    return async dispatch => {
-        dispatch(checkSMSKeyStarted())
-        try {
-            const response = await axios.get(`${API_URL_V2}/?type=get&pid=${smsKey}`)
-            if (typeof response.data === "object") {
-                dispatch(checkSMSKeySuccess())
-            } else {
-                dispatch(checkSMSKeyError("SMS atslēgta nav apmaksāta"))
-            }
-        } catch (error) {
-            dispatch(checkSMSKeyError(error.message))
         }
     }
 }

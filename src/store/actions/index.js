@@ -1,8 +1,11 @@
 export {
     getShop,
-    getSMSKey,
     setPlayerName,
     getPlayerName,
     removePlayerName,
-    checkSMSKey
 } from './shop'
+export {
+    getSMSKey,
+    checkSMSKey,
+    checkUnlockCode
+} from './payment'

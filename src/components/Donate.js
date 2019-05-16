@@ -3,6 +3,8 @@ import React from 'react'
 import { connect } from 'react-redux'
 import * as actions from '../store/actions'
 
+import config from '../config'
+
 import { Input } from './Input'
 import { isValid } from '../utils/isValid'
 
@@ -48,22 +50,39 @@ class Donate extends React.Component {
         paymentInterval: null
     }
 
-    checkKeyInterval() {
-        this.setState({ paymentInterval: setInterval(() => this.props.checkSMSKey("B" + this.props.smsKey), 5000) })
-    }
-
     handleSMS() {
         this.props.getSMSKey(this.state.formData.price.value)
-        this.setState({ payment: "sms"})
-        this.checkKeyInterval()
+        clearInterval(this.state.paymentInterval)
+        this.setState({ payment: "sms", paymentInterval: setInterval(() => this.props.checkSMSKey("B" + this.props.smsKey), config.CHECK_SMS_KEY_INTERVAL * 1000) })
     }
 
     handlePayPal() {
         this.setState({ payment: "paypal" })
     }
 
+    handleUnlockCode() {
+        clearInterval(this.state.paymentInterval)
+        this.setState({
+            formData: {
+                code: {
+                    ...this.state.formData.code,
+                    attr: {
+                        type: "text"
+                    },
+                    value: this.props.unlockCode,
+                    valid: { isValid: true, messages: [] }
+                }
+            }
+        })
+    }
+
     handleDonate() {
-        console.log("Handling donation...")
+        // Donation process
+        this.props.checkUnlockCode({
+            userId: this.props.shop.id,
+            price: this.state.formData.price.value,
+            unlockCode: this.state.formData.code.value
+        })
     }
 
     handleChange(input, event) {
@@ -98,12 +117,11 @@ class Donate extends React.Component {
         },
         formValid
         })
-        console.log(formValid)
     }
 
     render() {
-        if (this.props.smsKeyPaid === true) {
-            clearInterval(this.state.paymentInterval)
+        if (this.props.unlockCode !== null) {
+            this.handleUnlockCode()
         }
         
         let formData = []
@@ -149,15 +167,16 @@ class Donate extends React.Component {
 const mapStateToProps = state => {
     return {
         shop: state.shop.shopData,
-        smsKey: state.shop.smsKey,
-        smsKeyPaid: state.shop.smsKeyPaid
+        smsKey: state.payment.smsKey,
+        unlockCode: state.payment.unlockCode
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
         getSMSKey: price => dispatch(actions.getSMSKey(price)),
-        checkSMSKey: SMSKey => dispatch(actions.checkSMSKey(SMSKey))
+        checkSMSKey: SMSKey => dispatch(actions.checkSMSKey(SMSKey)),
+        checkUnlockCode: paymentData => dispatch(actions.checkUnlockCode(paymentData))
     }
 }
 
