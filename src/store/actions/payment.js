@@ -102,15 +102,13 @@ export const checkUnlockCode = data => {
         dispatch(checkUnlockCodeStarted())
         try {
             const response = await axios.get(`${config.SHOP_API}/charge/?user=${data.userId}&price=${data.price}&code=${data.unlockCode}`)
-            if (response.status !== 404) {
-                dispatch(checkUnlockCodeSuccess(response.data))
+            if (response.data.answer === "code_charged_ok") {
+                dispatch(checkUnlockCodeSuccess())
+            } else {
+                dispatch(checkUnlockCodeError("SMS atslēga nav apmaksāta"))
             }
         } catch (error) {
-            if (error.response.status === 404) {
-                dispatch(checkUnlockCodeError("SMS atslēga nav apmaksāta"))
-            } else {
-                dispatch(checkUnlockCodeError(error.message))
-            }
+            dispatch(checkUnlockCodeError(error.message))
         }
     }
 }
