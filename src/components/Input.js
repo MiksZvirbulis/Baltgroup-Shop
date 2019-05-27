@@ -17,7 +17,7 @@ export const Input = props => {
         return (
             <div className="form-group">
                 <label htmlFor={props.id}>{props.attr.placeholder}</label>
-                <select className="form-control" id={props.id} onChange={props.change} defaultValue="placeholder">
+                <select className="form-control" id={props.id} onChange={props.change} defaultValue="placeholder" disabled={props.disabled ? "disabled" : null}>
                     <option value="placeholder" disabled>{props.attr.placeholder}</option>
                     {props.options.map(option => <option key={option.value} value={option.value}>{option.display}</option> )}
                 </select>

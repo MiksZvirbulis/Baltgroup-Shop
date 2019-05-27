@@ -7,5 +7,6 @@ export {
 export {
     getSMSKey,
     checkSMSKey,
-    checkUnlockCode
+    checkUnlockCode,
+    resetUnlockCode
 } from './payment'

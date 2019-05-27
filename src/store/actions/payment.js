@@ -64,14 +64,18 @@ const checkSMSKeyError = error => {
 export const checkSMSKey = smsKey => {
     return async dispatch => {
         dispatch(checkSMSKeyStarted())
-        try {
-            const response = await axios.get(`${config.PAYMENT_API}/?type=get&pid=${smsKey}`)
-            if (response.status !== 404) {
-                dispatch(checkSMSKeySuccess(response.data))
+        if (config.DEBUG === true) {
+            dispatch(checkSMSKeySuccess("123456"))
+        } else {
+            try {
+                const response = await axios.get(`${config.PAYMENT_API}/?type=get&pid=${smsKey}`)
+                if (response.status !== 404) {
+                    dispatch(checkSMSKeySuccess(response.data))
+                }
+            } catch (error) {
+                const errorMessage = error.response.status === 404 ? "SMS atslēga nav apmaksāta" : error.message
+                dispatch(checkSMSKeyError(errorMessage))
             }
-        } catch (error) {
-            const errorMessage = error.response.status === 404 ? "SMS atslēga nav apmaksāta" : error.message
-            dispatch(checkSMSKeyError(errorMessage))
         }
     }
 }
@@ -100,15 +104,27 @@ const checkUnlockCodeError = error => {
 export const checkUnlockCode = data => {
     return async dispatch => {
         dispatch(checkUnlockCodeStarted())
-        try {
-            const response = await axios.get(`${config.SHOP_API}/charge/?user=${data.userId}&price=${data.price}&code=${data.unlockCode}`)
-            if (response.data.answer === "code_charged_ok") {
-                dispatch(checkUnlockCodeSuccess())
-            } else {
-                dispatch(checkUnlockCodeError("SMS atslēga nav apmaksāta"))
+        if (config.DEBUG === true) {
+            dispatch(checkUnlockCodeSuccess())
+        } else {
+            try {
+                const response = await axios.get(`${config.SHOP_API}/charge/?user=${data.userId}&price=${data.price}&code=${data.unlockCode}`)
+                if (response.data.answer === "code_charged_ok") {
+                    dispatch(checkUnlockCodeSuccess())
+                } else {
+                    dispatch(checkUnlockCodeError("SMS atslēga nav apmaksāta"))
+                }
+            } catch (error) {
+                dispatch(checkUnlockCodeError(error.message))
             }
-        } catch (error) {
-            dispatch(checkUnlockCodeError(error.message))
         }
+    }
+}
+
+// Reset SMS Unlock Code
+
+export const resetUnlockCode = () => {
+    return {
+        type: "RESET_UNLOCK_CODE"
     }
 }

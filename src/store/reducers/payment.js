@@ -30,6 +30,9 @@ export default function payment(state = initialState, action) {
         return updateObject(state, { error: action.error })
         case 'CHECK_UNLOCK_CODE_SUCCESS':
         return updateObject(state, { unlockCodePaid: true })
+        // Reset SMS Unlock Code
+        case 'RESET_UNLOCK_CODE':
+        return updateObject(state, { smsKey: null, unlockCode: null, unlockCodePaid: false })
         default:
         return state
     }
