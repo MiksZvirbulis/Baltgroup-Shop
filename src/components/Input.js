@@ -7,7 +7,7 @@ export const Input = props => {
         return (
             <div className="form-group">
                 <label htmlFor={props.id}>{props.attr.placeholder}</label>
-                <input className={ props.valid.isValid ? "is-valid " + formClass : (props.valid.isValid === null ? formClass : "is-invalid " + formClass) } onChange={props.change} id={props.id} type="text" {...props.attr} defaultValue={props.value} />
+                <input className={ props.valid.isValid ? "is-valid " + formClass : (props.valid.isValid === null ? formClass : "is-invalid " + formClass) } onChange={props.change} id={props.id} type="text" {...props.attr} value={props.value} />
                 <div className="invalid-feedback">
                     {props.valid.messages.map( message => message )}
                 </div>

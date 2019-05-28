@@ -8,46 +8,50 @@ import config from '../config'
 import { Input } from './Input'
 import { isValid } from '../utils/isValid'
 
-class Donate extends React.Component {
-    state = {
-        formData: {
-            comment: {
-                attr: {
-                    type: "text",
-                    placeholder: "Tavs komentārs"
-                },
-                value: "",
-                valid: { isValid: null, messages: [] },
-                rules: {
-                    minChars: 3,
-                    maxChars: 75
-                }
+const initialState = {
+    formData: {
+        comment: {
+            attr: {
+                type: "text",
+                placeholder: "Tavs komentārs"
             },
-            price: {
-                attr: {
-                    type: "select",
-                    placeholder: "Ziedojuma cena",
-                },
-                options: [
-                    { value: 1, display: '1.00 EUR' },
-                    { value: 1.5, display: '1.50 EUR' },
-                    { value: 2.0, display: '2.00 EUR' }
-                ],
-                value: 0,
-                valid: { isValid: null, messages: [] }
-            },
-            code: {
-                attr: {
-                    type: "hidden"
-                },
-                value: "",
-                valid: { isValid: null, messages: [] }
+            value: "",
+            valid: { isValid: null, messages: [] },
+            rules: {
+                minChars: 3,
+                maxChars: 75
             }
         },
-        message: null,
-        payment: null,
-        formValid: false,
-        paymentInterval: null
+        price: {
+            attr: {
+                type: "select",
+                placeholder: "Ziedojuma cena",
+            },
+            options: [
+                { value: 1, display: '1.00 EUR' },
+                { value: 1.5, display: '1.50 EUR' },
+                { value: 2.0, display: '2.00 EUR' }
+            ],
+            value: 0,
+            valid: { isValid: null, messages: [] }
+        },
+        code: {
+            attr: {
+                type: "hidden"
+            },
+            value: "",
+            valid: { isValid: null, messages: [] }
+        }
+    },
+    message: null,
+    payment: null,
+    formValid: false,
+    paymentInterval: null
+}
+
+class Donate extends React.Component {
+    state = {
+        ...initialState
     }
 
     handleSMS() {
@@ -63,27 +67,24 @@ class Donate extends React.Component {
     handleUnlockCode() {
         if (this.state.paymentInterval !== false) {
             clearInterval(this.state.paymentInterval)
+            const newCodeInput = {
+                ...this.state.formData.code,
+                attr: {
+                    placeholder: "Saņemtais kods",
+                    type: "text"
+                },
+                value: this.props.unlockCode,
+                valid: { isValid: true, messages: [] }
+            }
             this.setState({
                 formData: {
                     ...this.state.formData,
-                    code: {
-                        ...this.state.formData.code,
-                        attr: {
-                            placeholder: "Saņemtais kods",
-                            type: "text"
-                        },
-                        value: this.props.unlockCode,
-                        valid: { isValid: true, messages: [] }
-                    },
-                    price: {
-                        ...this.state.formData.price,
-                        disabled: true
-                    }
+                    code: newCodeInput,
+                    price: { ...this.state.formData.price, disabled: true }
                 },
                 paymentInterval: false,
                 payment: null
-            })
-            this.handleChange({ id: "code", ...this.state.formData.code }, this.props.unlockCode)
+            }, this.handleChange({ id: "code", ...newCodeInput }, this.props.unlockCode))
         }
     }
 
@@ -92,50 +93,16 @@ class Donate extends React.Component {
             userId: this.props.shop.id,
             price: this.state.formData.price.value,
             unlockCode: this.state.formData.code.value
+        }).then(() => {
+            if (this.props.unlockCodePaid === true) {
+                this.handleDonate()
+            }
         })
     }
 
     resetForm(message = null) {
-        this.setState({
-            formData: {
-                comment: {
-                    attr: {
-                        type: "text",
-                        placeholder: "Tavs komentārs"
-                    },
-                    value: "",
-                    valid: { isValid: null, messages: [] },
-                    rules: {
-                        minChars: 3,
-                        maxChars: 75
-                    }
-                },
-                price: {
-                    attr: {
-                        type: "select",
-                        placeholder: "Ziedojuma cena",
-                    },
-                    options: [
-                        { value: 1, display: '1.00 EUR' },
-                        { value: 1.5, display: '1.50 EUR' },
-                        { value: 2.0, display: '2.00 EUR' }
-                    ],
-                    value: 0,
-                    valid: { isValid: null, messages: [] }
-                },
-                code: {
-                    attr: {
-                        type: "hidden"
-                    },
-                    value: "",
-                    valid: { isValid: null, messages: [] }
-                }
-            },
-            payment: null,
-            formValid: false,
-            paymentInterval: null,
-            message
-        })
+        const newState = { ...initialState, message }
+        this.setState(newState)
     }
 
     handleDonate() {
@@ -149,10 +116,9 @@ class Donate extends React.Component {
         }
     }
 
-    handleChange(input, value) {
+    handleChange(input, newValue) {
         const currentForm = this.state.formData
         const currentInput = this.state.formData[input.id]
-        let newValue = value
         if (input.id === "price") {
             newValue = Number(newValue)
             if (this.state.payment === "sms") {
@@ -184,10 +150,6 @@ class Donate extends React.Component {
     }
 
     render() {
-        if (this.props.unlockCodePaid === true) {
-            this.handleDonate()
-        }
-
         let formData = []
         for (let key in this.state.formData) {
             formData.push({ id: key, ...this.state.formData[key] })
