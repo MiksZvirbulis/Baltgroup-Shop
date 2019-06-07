@@ -106,6 +106,11 @@ class Donate extends React.Component {
     }
 
     handleDonate() {
+        /*this.props.sendSuccessData("donate", {
+            name: this.props.playerName,
+            message: this.state.formData.comment.value,
+            unlockCode: this.props.unlockCode
+        })*/
         this.props.resetUnlockCode()
         this.resetForm("Paldies par ziedojumu!")
     }
@@ -204,6 +209,7 @@ const mapStateToProps = state => {
     return {
         shop: state.shop.shopData,
         smsKey: state.payment.smsKey,
+        playerName: state.shop.playerName,
         unlockCode: state.payment.unlockCode,
         unlockCodePaid: state.payment.unlockCodePaid
     }
@@ -214,7 +220,8 @@ const mapDispatchToProps = dispatch => {
         getSMSKey: price => dispatch(actions.getSMSKey(price)),
         checkSMSKey: SMSKey => dispatch(actions.checkSMSKey(SMSKey)),
         checkUnlockCode: paymentData => dispatch(actions.checkUnlockCode(paymentData)),
-        resetUnlockCode: () => dispatch(actions.resetUnlockCode())
+        resetUnlockCode: () => dispatch(actions.resetUnlockCode()),
+        sendSuccessData: (type, donate) => dispatch(actions.sendSuccessData(type, donate))
     }
 }
 

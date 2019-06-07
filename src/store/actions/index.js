@@ -10,3 +10,6 @@ export {
     checkUnlockCode,
     resetUnlockCode
 } from './payment'
+export {
+    sendSuccessData
+} from './plugin' 
