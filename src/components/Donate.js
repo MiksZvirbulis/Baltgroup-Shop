@@ -8,6 +8,8 @@ import config from '../config'
 import { Input } from './Input'
 import { isValid } from '../utils/isValid'
 
+import { PayPalButton } from 'react-paypal-button'
+
 const initialState = {
     formData: {
         comment: {
@@ -177,7 +179,19 @@ class Donate extends React.Component {
                     : (
                         this.state.payment === "paypal" ?
                         <div className="alert alert-primary" role="alert">
-                            PAYPAL POGA<br />
+                            <PayPalButton
+                                env='production'
+                                sandboxID='6b98601746'
+                                amount={this.state.formData.price.value.toFixed(2)}
+                                currency='EUR'
+                                onPaymentStart={() => console.log('payment started')}
+                                onPaymentSuccess={(res) => this.handleDonate() }
+                                onPaymentError={(msg) => console.log('payment error', msg)}
+                                onShippingChange={(data) => {
+                                    console.log('onShippingChange', data)
+                                    return 0
+                                }}
+                            />
                             <small>Maksa ({this.state.formData.price.value.toFixed(2)} EUR) tiks atrēķināta no izvēlētā PayPal konta.</small>
                         </div>
                         : ""
@@ -188,7 +202,7 @@ class Donate extends React.Component {
                         <>
                         {this.state.formData.code.value ?
                             <button className="btn btn-primary" type="button" onClick={() => this.handlePayment()} disabled={this.state.formValid ? null : "disabled"}>Apstiprināt</button>
-                        : 
+                        :
                             (
                                 <>
                                     <button className="btn btn-primary" type="button" onClick={() => this.handlePayPal()} disabled={this.state.payment === "paypal" ? "disabled" : null}>PayPal</button>
