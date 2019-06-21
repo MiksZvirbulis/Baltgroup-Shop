@@ -97,7 +97,7 @@ class Donate extends React.Component {
             unlockCode: this.state.formData.code.value
         }).then(() => {
             if (this.props.unlockCodePaid === true) {
-                this.handleDonate()
+                this.handleSuccess()
             }
         })
     }
@@ -107,7 +107,7 @@ class Donate extends React.Component {
         this.setState(newState)
     }
 
-    handleDonate() {
+    handleSuccess() {
         /*this.props.sendSuccessData("donate", {
             name: this.props.playerName,
             message: this.state.formData.comment.value,
@@ -180,8 +180,8 @@ class Donate extends React.Component {
                         this.state.payment === "paypal" ?
                         <div className="alert alert-primary" role="alert">
                             <PayPalButton
-                                env='production'
-                                sandboxID='6b98601746'
+                                env='sandbox'
+                                sandboxID='AcdK8o21tm_iCBuxE8kRwb9nyZLyeRt3-AONs2sBg_IuIgZLatuHn5XB9H0dOoMH71JGOtoKBePa7pSe'
                                 amount={this.state.formData.price.value.toFixed(2)}
                                 currency='EUR'
                                 onPaymentStart={() => console.log('payment started')}
@@ -235,7 +235,7 @@ const mapDispatchToProps = dispatch => {
         checkSMSKey: SMSKey => dispatch(actions.checkSMSKey(SMSKey)),
         checkUnlockCode: paymentData => dispatch(actions.checkUnlockCode(paymentData)),
         resetUnlockCode: () => dispatch(actions.resetUnlockCode()),
-        sendSuccessData: (type, donate) => dispatch(actions.sendSuccessData(type, donate))
+        sendSuccessData: (type, data) => dispatch(actions.sendSuccessData(type, data))
     }
 }
 

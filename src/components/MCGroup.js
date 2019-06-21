@@ -14,19 +14,19 @@ const groupTypes = [
     {
         value: 1,
         price: 1.15,
-        display: "Donator (12 dienas)",
+        display: "Donator (12 dienas - 1.15 EUR)",
         length: 12
     },
     {
         value: 2,
         price: 2.20,
-        display: "Donator (24 dienas)",
+        display: "Donator (24 dienas - 2.20 EUR)",
         length: 24
     },
     {
         value: 3,
         price: 1.65,
-        display: "Ultimate (12 dienas)",
+        display: "Ultimate (12 dienas - 1.65 EUR)",
         length: 12
     }
 ]
@@ -104,7 +104,7 @@ class MCGroup extends React.Component {
             unlockCode: this.state.formData.code.value
         }).then(() => {
             if (this.props.unlockCodePaid === true) {
-                this.handleDonate()
+                this.handleSuccess()
             }
         })
     }
@@ -114,7 +114,7 @@ class MCGroup extends React.Component {
         this.setState(newState)
     }
 
-    handleDonate() {
+    handleSuccess() {
         /*this.props.sendSuccessData("mc_group", {
             name: this.props.playerName,
             groupType: this.state.formData.price.value,
@@ -170,7 +170,7 @@ class MCGroup extends React.Component {
         }
         return (
             <>
-                <h3>Ziedot</h3>
+                <h3>MC Grupas</h3>
                 {this.state.message ? (
                     <div className="alert alert-success" role="alert">
                         {this.state.message}
@@ -187,8 +187,8 @@ class MCGroup extends React.Component {
                         this.state.payment === "paypal" ?
                         <div className="alert alert-primary" role="alert">
                             <PayPalButton
-                                env='production'
-                                sandboxID='6b98601746'
+                                env='sandbox'
+                                sandboxID='AcdK8o21tm_iCBuxE8kRwb9nyZLyeRt3-AONs2sBg_IuIgZLatuHn5XB9H0dOoMH71JGOtoKBePa7pSe'
                                 amount={this.state.formData.price.value.toFixed(2)}
                                 currency='EUR'
                                 onPaymentStart={() => console.log('payment started')}
@@ -242,7 +242,7 @@ const mapDispatchToProps = dispatch => {
         checkSMSKey: SMSKey => dispatch(actions.checkSMSKey(SMSKey)),
         checkUnlockCode: paymentData => dispatch(actions.checkUnlockCode(paymentData)),
         resetUnlockCode: () => dispatch(actions.resetUnlockCode()),
-        sendSuccessData: (type, donate) => dispatch(actions.sendSuccessData(type, donate))
+        sendSuccessData: (type, data) => dispatch(actions.sendSuccessData(type, data))
     }
 }
 
