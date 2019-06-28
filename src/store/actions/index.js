@@ -8,7 +8,8 @@ export {
     getSMSKey,
     checkSMSKey,
     checkUnlockCode,
-    resetUnlockCode
+    resetUnlockCode,
+    getPayPalKey
 } from './payment'
 export {
     sendSuccessData

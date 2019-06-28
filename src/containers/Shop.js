@@ -2,49 +2,57 @@ import React from 'react'
 import { connect } from 'react-redux'
 import * as actions from '../store/actions'
 
-import { htmlDecode } from '../utils/htmlDecode'
 import { Input } from '../components/Input'
-import { isValid } from '../utils/isValid'
+import { handleChange } from '../utils/handleChange'
 
 import { NavLink } from 'react-router-dom'
 
-import Donate from '../components/Donate'
-import MCGroup from '../components/MCGroup'
-import MCCrates from '../components/MCCrates'
-import MCUnban from '../components/MCUnban'
+// plugins
+import Home from '../components/Home'
+import Donate from '../components/plugins/Donate'
+import MCGroup from '../components/plugins/MCGroup'
+import MCCrates from '../components/plugins/MCCrates'
+import MCUnban from '../components/plugins/MCUnban'
+import MCSkin from '../components/plugins/MCSkin'
 
 class Shop extends React.Component {
     state = {
-        plugin: null,
-        shop: null,
-        playerNameInput: {
-            attr: {
-                type: "text",
-                placeholder: "Tavs vārds"
+        formData: {
+            playerName: {
+                attr: {
+                    type: "text",
+                    placeholder: "Spēlētāja vārds"
+                },
+                value: "",
+                valid: { isValid: null, messages: []},
+                rules: {
+                    minChars: 3,
+                    maxChars: 25
+                }
             },
-            value: "",
-            valid: { isValid: null, messages: []},
-            rules: {
-                minChars: 3,
-                maxChars: 25
+            serverId: {
+                attr: {
+                    type: "select",
+                    placeholder: "Izvēlies serveri...",
+                    size: "3"
+                },
+                options: [],
+                value: 0,
+                valid: { isValid: null, messages: [] }
             }
-        }
+        },
+        plugin: null,
+        formValid: false,
+        shop: null
     }
 
-    handleChange(input, event) {
-        const currentInput = this.state.playerNameInput
-        const validation = isValid(event.target.value, input.rules)
-        this.setState({ playerNameInput: {
-            ...currentInput,
-            value: event.target.value,
-            valid: { isValid: validation.isValid, messages: validation.messages }
-        } })
+    handleChange(input, newValue) {
+        // Handling changes in the form - inputs, select etc.
+        this.setState(handleChange(this.state, input, newValue))
     }
 
-    handlePlayerForm(event) {
-        event.preventDefault()
-        this.props.setPlayerName(this.state.playerNameInput.value)
-        this.setState({ playerNameInput: { ...this.state.playerNameInput, value: "" } })
+    handlePlayerForm() {
+        this.props.setPlayerName(this.state.formData.playerName.value, this.state.formData.serverId.value)
     }
 
     handleLogout(event) {
@@ -54,9 +62,19 @@ class Shop extends React.Component {
 
     componentWillMount () {
         let { shop, plugin } = this.props.match.params
-        this.props.getShop(shop)
         this.props.getPlayerName()
-        this.setState({ plugin, shop })
+        this.props.getShop(shop).then(() => {
+            const serverList = (this.props.shop !== null) ? this.props.shop.servers : [{}]
+            this.setState({ plugin, shop, formData: {
+                ...this.state.formData,
+                serverId: {
+                    ...this.state.formData.serverId,
+                    options: [
+                        ...serverList
+                    ]
+                }
+            } })
+        })
     }
 
     componentWillReceiveProps(nextProps) {
@@ -66,40 +84,51 @@ class Shop extends React.Component {
     }
 
     render() {
+        // Iterating over form inputs found in state and pushing them to an array
+        let formData = []
+        for (let key in this.state.formData) {
+            formData.push({ id: key, ...this.state.formData[key] })
+        }
         let shop = <div className="spinner-border text-primary" role="status"><span className="sr-only">Ielādējam...</span></div>
         if (this.props.shop) {
             const plugin = this.state.plugin
             //const isPluginActive = this.props.shop.menu.find(item => item.type === plugin)
             const isPluginActive = true
-            const pluginMenu = this.props.shop.menu.map(item => {
-                return (
-                    <NavLink to={`/${this.state.shop}/${item.type}`} className="nav-link" key={item.url}>
-                        <li className="nav-item">{item.title}</li>
-                    </NavLink>
-                )
-            })
+            let pluginMenu = null
+            if (this.props.serverId !== null) {
+                const findServer = this.props.shop.servers.find(item => Number(item.id) === Number(this.props.serverId))
+                pluginMenu = findServer.plugins.map(item => {
+                    return (
+                        <NavLink to={`/${this.state.shop}/${item.urlname}`} className="nav-link" key={item.urlname}>
+                            <li className="nav-item">{item.display}</li>
+                        </NavLink>
+                    )
+                })
+            }
             const plugins = (
                 <>
+                    {(!plugin) ? <Home helloText={this.props.shop.hellotext} /> : null}
                     {(plugin === "donate" && isPluginActive) ? <Donate /> : null}
                     {(plugin === "mc_group" && isPluginActive) ? <MCGroup /> : null}
-                    {(plugin === "mc_unban" && isPluginActive) ? <MCUnban /> : null}
+                    {(plugin === "mc_unban" && isPluginActive) ? <MCUnban playerName={this.props.playerName} /> : null}
                     {(plugin === "mc_crates" && isPluginActive) ? <MCCrates /> : null}
+                    {(plugin === "mc_skin" && isPluginActive) ? <MCSkin /> : null}
                 </>
             )
             const playerNameForm = (
                 <>
                 <form>
-                    <Input change={(event) => this.handleChange(this.state.playerNameInput, event)} {...this.state.playerNameInput} />
-                    <button className="btn btn-primary" type="submit" onClick={(event) => this.handlePlayerForm(event)}>Ok</button>
+                    {formData.map((input, index) => <Input change={(event) => this.handleChange(input, event.target.value)} key={index} {...input} /> )}
+                    <button className="btn btn-primary" type="button" onClick={() => this.handlePlayerForm()} disabled={this.state.formValid ? null : "disabled"}>Apstiprināt</button>
                 </form>
                 </>
             )
             shop = (
                 <div>
                     <h3 className="mb-0" style={{textAlign: 'center'}}>{this.props.shop.title}</h3>
-                    <p className="mt-2" dangerouslySetInnerHTML={{__html: htmlDecode(this.props.shop.hellotext)}}></p>
-                    <h3 className="mb-0"><center>{this.props.playerName ? `Sveiks, ${this.props.playerName}` : `Izvēlies spēlētāja vārdu`}</center></h3>
+                    <h3 className="mb-0"><center>{this.props.playerName ? `Sveiks, ${this.props.playerName}` : null}</center></h3>
                     <ul className="nav nav-pills">
+                    <NavLink exact to={`/${this.state.shop}`} className="nav-link"><li className="nav-item">Sākums</li></NavLink>
                         {pluginMenu}
                         {this.props.playerName ? <li className="nav-item"><a href="/logout" className="nav-link" onClick={(event) => this.handleLogout(event)}>Izlogoties</a></li> : ""}
                     </ul>
@@ -119,7 +148,8 @@ const mapStateToProps = state => {
     return {
         shop: state.shop.shopData,
         playerName: state.shop.playerName,
-        error: state.shop.error
+        error: state.shop.error,
+        serverId: state.shop.serverId
     }
 }
 
@@ -127,7 +157,7 @@ const mapDispatchToProps = dispatch => {
     return {
         getShop: slug => dispatch(actions.getShop(slug)),
         getPlayerName: () => dispatch(actions.getPlayerName()),
-        setPlayerName: playerName => dispatch(actions.setPlayerName(playerName)),
+        setPlayerName: (playerName, serverId) => dispatch(actions.setPlayerName(playerName, serverId)),
         removePlayerName: () => dispatch(actions.removePlayerName())
     }
 }

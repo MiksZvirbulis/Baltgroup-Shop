@@ -1,10 +1,10 @@
 import React from 'react'
 
-const Home = () => {
+const Home = props => {
     return (
-        <div>
-            Neviens veikals netika izvēlēts.
-        </div>
+        <>
+            <p className="mt-2">{props.helloText}</p>
+        </>
     )
 }
 

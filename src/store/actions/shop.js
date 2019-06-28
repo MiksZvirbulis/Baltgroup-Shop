@@ -28,14 +28,15 @@ export const getShop = slug => {
     return async dispatch => {
         dispatch(getShopStarted())
         try {
-            const response = await axios.get(`${config.SHOP_API}/shop/?method=shopinfo&slug=${slug}`)
+            const response = await axios.get(`${config.SHOP_API}/reactapi/?shop=${slug}&method=maininfo`)
             if (response.status !== 404) {
                 dispatch(getShopSuccess(response.data))
             } else {
                 dispatch(getShopError(response.error.message))
             }
         } catch (error) {
-            if (error.response.status === 404) {
+            console.log(error)
+            if (error.response && error.response.status === 404) {
                 dispatch(getShopError("Shop was not found..."))
             } else {
                 dispatch(getShopError(error.message))
@@ -52,10 +53,11 @@ const setPlayerNameStarted = () => {
     }
 }
 
-const setPlayerNameSuccess = playerName => {
+const setPlayerNameSuccess = (playerName, serverId) => {
     return {
         type: "SET_PLAYER_NAME_SUCCESS",
-        playerName
+        playerName,
+        serverId
     }
 }
 
@@ -66,13 +68,14 @@ const setPlayerNameError = error => {
     }
 }
 
-export const setPlayerName = playerName => {
+export const setPlayerName = (playerName, serverId) => {
     return async dispatch => {
         dispatch(setPlayerNameStarted())
         const cookies = new Cookies()
         try {
             await cookies.set("playerName", playerName, { path: "/" })
-            dispatch(setPlayerNameSuccess(playerName))
+            await cookies.set("serverId", serverId, { path: "/" })
+            dispatch(setPlayerNameSuccess(playerName, serverId))
         } catch (error) {
             dispatch(setPlayerNameError(error.message))
         }
@@ -87,10 +90,11 @@ const getPlayerNameStarted = () => {
     }
 }
 
-const getPlayerNameSuccess = playerName => {
+const getPlayerNameSuccess = (playerName, serverId) => {
     return {
         type: "GET_PLAYER_NAME_SUCCESS",
-        playerName
+        playerName,
+        serverId
     }
 }
 
@@ -107,8 +111,10 @@ export const getPlayerName = () => {
         const cookies = new Cookies()
         try {
             let playerName = await cookies.get("playerName")
+            let serverId = await cookies.get("serverId")
             playerName = playerName === undefined ? null : playerName
-            dispatch(getPlayerNameSuccess(playerName))
+            serverId = serverId === undefined ? null : serverId
+            dispatch(getPlayerNameSuccess(playerName, serverId))
         } catch (error) {
             dispatch(getPlayerNameError(error.message))
         }

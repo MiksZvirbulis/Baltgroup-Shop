@@ -24,6 +24,13 @@ export default function payment(state = initialState, action) {
         case 'CHECK_SMS_KEY_SUCCESS':
         return updateObject(state, { unlockCode: action.unlockCode })
         // Check SMS Unlock Code
+        case 'GET_PAYPAL_CODE':
+        return updateObject(state, { error: null, unlockCode: null })
+        case 'GET_PAYPAL_CODE_ERROR':
+        return updateObject(state, { error: action.error })
+        case 'GET_PAYPAL_CODE_SUCCESS':
+        return updateObject(state, { unlockCode: action.unlockCode })
+        // Check SMS Unlock Code
         case 'CHECK_UNLOCK_CODE':
         return updateObject(state, { error: null, unlockCodePaid: false })
         case 'CHECK_UNLOCK_CODE_ERROR':

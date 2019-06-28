@@ -5,7 +5,8 @@ const initialState = {
     error: null,
     smsKey: null,
     smsKeyPaid: false,
-    playerName: null
+    playerName: null,
+    serverId: null
 }
 
 export default function shop(state = initialState, action) {
@@ -33,25 +34,25 @@ export default function shop(state = initialState, action) {
         return updateObject(state, { smsKeyPaid: true })
         // Set player name used for shopping
         case 'SET_PLAYER_NAME':
-        return updateObject(state, { error: null, playerName: null })
+        return updateObject(state, { error: null, playerName: null, serverId: null })
         case 'SET_PLAYER_NAME_ERROR':
         return updateObject(state, { error: action.error })
         case 'SET_PLAYER_NAME_SUCCESS':
-        return updateObject(state, { playerName: action.playerName })
+        return updateObject(state, { playerName: action.playerName, serverId: action.serverId })
         // Get player name used for shopping
         case 'GET_PLAYER_NAME':
         return updateObject(state, { error: null, playerName: null })
         case 'GET_PLAYER_NAME_ERROR':
         return updateObject(state, { error: action.error })
         case 'GET_PLAYER_NAME_SUCCESS':
-        return updateObject(state, { playerName: action.playerName })
+        return updateObject(state, { playerName: action.playerName, serverId: action.serverId })
         // Remove player name
         case 'REMOVE_PLAYER_NAME':
         return updateObject(state, { error: null })
         case 'REMOVE_PLAYER_NAME_ERROR':
         return updateObject(state, { error: action.error })
         case 'REMOVE_PLAYER_NAME_SUCCESS':
-        return updateObject(state, { playerName: null })
+        return updateObject(state, { playerName: null, serverId: null })
         default:
         return state
     }

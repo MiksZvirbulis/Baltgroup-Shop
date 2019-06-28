@@ -2,7 +2,15 @@ button {
     margin: 5px;
 }
 
+.App {
+    margin-top: 50px;
+}
+
 .spinner-border {
     display: flex;
     margin: 0 auto;
+}
+
+.paypal-button-container {
+    width: 300px !important;
 }

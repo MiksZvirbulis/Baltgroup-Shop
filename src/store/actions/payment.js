@@ -80,6 +80,47 @@ export const checkSMSKey = smsKey => {
     }
 }
 
+// Get PayPal Unlock Code
+
+const getPayPalCodeStarted = () => {
+    return {
+        type: "GET_PAYPAL_CODE"
+    }
+}
+
+const getPayPalCodeSuccess = unlockCode => {
+    return {
+        type: "GET_PAYPAL_CODE_SUCCESS",
+        unlockCode
+    }
+}
+
+const getPayPalCodeError = error => {
+    return {
+        type: "GET_PAYPAL_CODE_ERROR",
+        error
+    }
+}
+
+export const getPayPalKey = paymentId => {
+    return async dispatch => {
+        dispatch(getPayPalCodeStarted())
+        if (config.DEBUG === true) {
+            dispatch(getPayPalCodeSuccess("123456"))
+        } else {
+            try {
+                const response = await axios.get(`${config.GATEWAY_API}/?method=paypal&option=paymentinfo&id=${paymentId}`)
+                if (response.status !== 404) {
+                    dispatch(getPayPalCodeSuccess(response.data.paycode))
+                }
+            } catch (error) {
+                const errorMessage = error.response.status === 404 ? "SMS atslēga nav apmaksāta" : error.message
+                dispatch(getPayPalCodeError(errorMessage))
+            }
+        }
+    }
+}
+
 // Check SMS Unlock Code
 
 const checkUnlockCodeStarted = () => {

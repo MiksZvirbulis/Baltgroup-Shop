@@ -8,6 +8,7 @@ import Shop from './containers/Shop'
 
 class App extends React.Component {
   render() {
+    const helloText = "Welcome to baltGro Shop! Please select a shop below."
     return (
       <div className="App">
         <main className="main">
@@ -16,7 +17,7 @@ class App extends React.Component {
               <div className="card mb-3">
                 <div className="card-body">
                   <Switch>
-                    <Route exact path="/" component={Home}/>
+                    <Route exact path="/" render={() => <Home helloText={helloText} />}/>
                     <Route exact path="/:shop" component={Shop}/>
                     <Route exact path="/:shop/:plugin" component={Shop}/>
                   </Switch>
