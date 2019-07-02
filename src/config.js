@@ -13,5 +13,6 @@ export default {
     },
     CHECK_SMS_KEY_INTERVAL: 3, // In seconds
     CURRENCY: 'EUR',
+    LAST_PURCHASE_LIMIT: 5,
     DEBUG: true // true or false
 }

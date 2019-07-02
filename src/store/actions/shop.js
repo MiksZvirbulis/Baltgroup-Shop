@@ -30,12 +30,15 @@ export const getShop = slug => {
         try {
             const response = await axios.get(`${config.SHOP_API}/reactapi/?shop=${slug}&method=maininfo`)
             if (response.status !== 404) {
-                dispatch(getShopSuccess(response.data))
+                if (!response.data.errors) {
+                    dispatch(getShopSuccess({ ...response.data, errors: [] }))
+                } else {
+                    dispatch(getShopError(response.data.errors[0]))
+                }
             } else {
                 dispatch(getShopError(response.error.message))
             }
         } catch (error) {
-            console.log(error)
             if (error.response && error.response.status === 404) {
                 dispatch(getShopError("Shop was not found..."))
             } else {
@@ -68,13 +71,14 @@ const setPlayerNameError = error => {
     }
 }
 
-export const setPlayerName = (playerName, serverId) => {
+export const setPlayerName = (playerName, serverId, shopName) => {
     return async dispatch => {
         dispatch(setPlayerNameStarted())
         const cookies = new Cookies()
         try {
             await cookies.set("playerName", playerName, { path: "/" })
             await cookies.set("serverId", serverId, { path: "/" })
+            await cookies.set("shopName", shopName, { path: "/" })
             dispatch(setPlayerNameSuccess(playerName, serverId))
         } catch (error) {
             dispatch(setPlayerNameError(error.message))
@@ -105,15 +109,22 @@ const getPlayerNameError = error => {
     }
 }
 
-export const getPlayerName = () => {
+export const getPlayerName = shopName => {
     return async dispatch => {
         dispatch(getPlayerNameStarted())
         const cookies = new Cookies()
         try {
             let playerName = await cookies.get("playerName")
             let serverId = await cookies.get("serverId")
+            let prevShopName = await cookies.get("shopName")
             playerName = playerName === undefined ? null : playerName
             serverId = serverId === undefined ? null : serverId
+            prevShopName = prevShopName === undefined ? null : prevShopName
+
+            if (prevShopName !== shopName) {
+                await cookies.remove("serverId", { path: '/' })
+                serverId = null
+            }
             dispatch(getPlayerNameSuccess(playerName, serverId))
         } catch (error) {
             dispatch(getPlayerNameError(error.message))

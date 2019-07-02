@@ -1,11 +1,12 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import * as actions from '../store/actions'
+import { NavLink } from 'react-router-dom'
 
 import { Input } from '../components/Input'
-import { handleChange } from '../utils/handleChange'
+import LastPurchases from '../components/LastPurchases'
 
-import { NavLink } from 'react-router-dom'
+import { handleChange } from '../utils/handleChange'
 
 // plugins
 import Home from '../components/Home'
@@ -23,7 +24,7 @@ class Shop extends React.Component {
                     type: "text",
                     placeholder: "Spēlētāja vārds"
                 },
-                value: "",
+                value: this.props.playerName ? this.props.playerName : "",
                 valid: { isValid: null, messages: []},
                 rules: {
                     minChars: 3,
@@ -52,28 +53,41 @@ class Shop extends React.Component {
     }
 
     handlePlayerForm() {
-        this.props.setPlayerName(this.state.formData.playerName.value, this.state.formData.serverId.value)
+        this.props.setPlayerName(this.state.formData.playerName.value, this.state.formData.serverId.value, this.props.shop.slug)
     }
 
     handleLogout(event) {
         event.preventDefault()
         this.props.removePlayerName()
+        this.setState({
+            formData: {
+                ...this.state.formData,
+                playerName: {
+                    ...this.state.formData.playerName,
+                    value: "",
+                    valid: { isValid: null, messages: [] }
+                }
+            },
+            formValid: false
+        }, this.props.history.push(`/${this.state.shop}`))
     }
 
     componentWillMount () {
         let { shop, plugin } = this.props.match.params
-        this.props.getPlayerName()
-        this.props.getShop(shop).then(() => {
-            const serverList = (this.props.shop !== null) ? this.props.shop.servers : [{}]
-            this.setState({ plugin, shop, formData: {
-                ...this.state.formData,
-                serverId: {
-                    ...this.state.formData.serverId,
-                    options: [
-                        ...serverList
-                    ]
+        this.props.getPlayerName(shop).then(() => {
+            this.props.getShop(shop).then(() => {
+                if (this.props.shop && this.props.shop.errors.length === 0) {
+                    this.setState({ plugin, shop, formData: {
+                        ...this.state.formData,
+                        serverId: {
+                            ...this.state.formData.serverId,
+                            options: [
+                                ...this.props.shop.servers
+                            ]
+                        }
+                    } })
                 }
-            } })
+            })
         })
     }
 
@@ -90,7 +104,7 @@ class Shop extends React.Component {
             formData.push({ id: key, ...this.state.formData[key] })
         }
         let shop = <div className="spinner-border text-primary" role="status"><span className="sr-only">Ielādējam...</span></div>
-        if (this.props.shop) {
+        if (this.props.shop && this.props.shop.errors.length === 0) {
             const plugin = this.state.plugin
             //const isPluginActive = this.props.shop.menu.find(item => item.type === plugin)
             const isPluginActive = true
@@ -124,21 +138,31 @@ class Shop extends React.Component {
                 </>
             )
             shop = (
-                <div>
-                    <h3 className="mb-0" style={{textAlign: 'center'}}>{this.props.shop.title}</h3>
-                    <h3 className="mb-0"><center>{this.props.playerName ? `Sveiks, ${this.props.playerName}` : null}</center></h3>
-                    <ul className="nav nav-pills">
-                    <NavLink exact to={`/${this.state.shop}`} className="nav-link"><li className="nav-item">Sākums</li></NavLink>
-                        {pluginMenu}
-                        {this.props.playerName ? <li className="nav-item"><a href="/logout" className="nav-link" onClick={(event) => this.handleLogout(event)}>Izlogoties</a></li> : ""}
-                    </ul>
-                    { this.props.playerName === null ? playerNameForm : plugins}
-                    
+                <>
+                <div className="card mb-3">
+                    <div className="card-body">
+                        <h3 className="mb-0" style={{textAlign: 'center'}}>{this.props.shop.title}</h3>
+                        <h3 className="mb-0"><center>{(this.props.playerName && this.props.serverId) ? `Sveiks, ${this.props.playerName}` : null}</center></h3>
+                        <ul className="nav nav-pills">
+                        <NavLink exact to={`/${this.state.shop}`} className="nav-link"><li className="nav-item">Sākums</li></NavLink>
+                            {pluginMenu}
+                            {(this.props.playerName && this.props.serverId) ? <li className="nav-item"><a href="/logout" className="nav-link" onClick={(event) => this.handleLogout(event)}>Izlogoties</a></li> : ""}
+                        </ul>
+                        <div className="row no-gutters">
+                            <div className="col-lg-8 pr-lg-2">
+                                { (this.props.playerName === null || this.props.serverId === null) ? playerNameForm : plugins}
+                            </div>
+                            <div className="col-lg-4 pr-lg-2">
+                                <LastPurchases lastPurchases={this.props.shop.lastpurchases} />
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                </>
             )
         }
         if (this.props.error) {
-            shop = this.props.error
+            shop = (<div className="alert alert-danger">{this.props.error}</div>)
         }
         return shop
     }
@@ -156,8 +180,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         getShop: slug => dispatch(actions.getShop(slug)),
-        getPlayerName: () => dispatch(actions.getPlayerName()),
-        setPlayerName: (playerName, serverId) => dispatch(actions.setPlayerName(playerName, serverId)),
+        getPlayerName: shopName => dispatch(actions.getPlayerName(shopName)),
+        setPlayerName: (playerName, serverId, shopName) => dispatch(actions.setPlayerName(playerName, serverId, shopName)),
         removePlayerName: () => dispatch(actions.removePlayerName())
     }
 }
