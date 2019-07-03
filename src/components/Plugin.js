@@ -12,13 +12,6 @@ import { updateObject } from '../utils/updateObject'
 
 import { PayPalButton } from 'react-paypal-button-v2'
 
-const initialState = {
-    message: null,
-    payment: null,
-    formValid: false,
-    paymentInterval: null
-}
-
 class Plugin extends React.Component {
     
     constructor(props) {
@@ -72,7 +65,8 @@ class Plugin extends React.Component {
         }
     }
 
-    handlePayment() {
+    handlePayment(event) {
+        event.preventDefault()
         // This function checks if the unlockCode matches the price via API and if successful, handles success
         this.props.checkUnlockCode({
             userId: this.props.shop.id,
@@ -94,7 +88,7 @@ class Plugin extends React.Component {
 
     resetForm() {
         // After success, this resets the form and adds an optional message
-        const newState = { ...initialState }
+        const newState = { ...this.initialState }
         this.setState(newState)
     }
 
@@ -148,7 +142,7 @@ class Plugin extends React.Component {
                         {this.state.message.text}
                     </div>
                 ) : null}
-                <form>
+                <form onSubmit={(event) => this.handlePayment(event)}>
                     {formData.map((input, index) => <Input change={(event) => this.handleChange(input, event.target.value)} key={index} {...input} /> )}
                     {/* Display only if payment method is SMS */}
                     {(this.state.payment === "sms" && this.props.smsKey !== null) ?
@@ -183,7 +177,7 @@ class Plugin extends React.Component {
                         <>
                         {/* Show confirmation button only if unlockCode has been received */}
                         {this.state.formData.code.value ?
-                            <button className="btn btn-primary" type="button" onClick={() => this.handlePayment()} disabled={this.state.formValid ? null : "disabled"}>Apstiprināt</button>
+                            <button className="btn btn-primary" type="submit" disabled={this.state.formValid ? null : "disabled"}>Apstiprināt</button>
                         :
                             (
                                 <> {/* Otherwise, show payment method choice */}

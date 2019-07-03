@@ -44,7 +44,8 @@ class Shop extends React.Component {
         },
         plugin: null,
         formValid: false,
-        shop: null
+        shop: null,
+        isNavCollapsed: true
     }
 
     handleChange(input, newValue) {
@@ -52,7 +53,8 @@ class Shop extends React.Component {
         this.setState(handleChange(this.state, input, newValue))
     }
 
-    handlePlayerForm() {
+    handlePlayerForm(event) {
+        event.preventDefault()
         this.props.setPlayerName(this.state.formData.playerName.value, this.state.formData.serverId.value, this.props.shop.slug)
     }
 
@@ -91,6 +93,10 @@ class Shop extends React.Component {
         })
     }
 
+    toggleNav() {
+        this.setState({isNavCollapsed: !this.state.isNavCollapsed})
+    }
+
     componentWillReceiveProps(nextProps) {
         if (nextProps.match.params.plugin !== this.props.match.params.plugin) {
           this.setState({ plugin: nextProps.match.params.plugin })
@@ -103,12 +109,17 @@ class Shop extends React.Component {
         for (let key in this.state.formData) {
             formData.push({ id: key, ...this.state.formData[key] })
         }
+        // Display loading element if shop has not been loaded yet
         let shop = <div className="spinner-border text-primary" role="status"><span className="sr-only">Ielādējam...</span></div>
+
+        // Check if shop has loaded and no errors are present
         if (this.props.shop && this.props.shop.errors.length === 0) {
+            // Name of plugin
             const plugin = this.state.plugin
             //const isPluginActive = this.props.shop.menu.find(item => item.type === plugin)
             const isPluginActive = true
             let pluginMenu = null
+            // Find plugins in server selected only if serverId is not null
             if (this.props.serverId !== null) {
                 const findServer = this.props.shop.servers.find(item => Number(item.id) === Number(this.props.serverId))
                 pluginMenu = findServer.plugins.map(item => {
@@ -131,23 +142,32 @@ class Shop extends React.Component {
             )
             const playerNameForm = (
                 <>
-                <form>
+                <form onSubmit={(event) => this.handlePlayerForm(event)}>
                     {formData.map((input, index) => <Input change={(event) => this.handleChange(input, event.target.value)} key={index} {...input} /> )}
-                    <button className="btn btn-primary" type="button" onClick={() => this.handlePlayerForm()} disabled={this.state.formValid ? null : "disabled"}>Apstiprināt</button>
+                    <button className="btn btn-primary" type="submit" disabled={this.state.formValid ? null : "disabled"}>Apstiprināt</button>
                 </form>
                 </>
             )
+            const playerAvatar = (this.props.playerName && this.props.serverId) ? (
+                <div className="avatar avatar-2xl mr-3"><img className="rounded-circle" src={`https://minotar.net/helm/${this.props.playerName}/100.png`} alt={this.props.playerName}/></div>
+            ) : null
             shop = (
                 <>
+                <nav className="navbar navbar-expand-lg navbar-dark bg-primary fs--1"><NavLink exact to={`/${this.state.shop}`} className="navbar-brand">{this.props.shop.title}</NavLink><button className="navbar-toggler" type="button" onClick={() => this.toggleNav()} aria-label="Toggle navigation"><span className="navbar-toggler-icon"></span></button>
+                    <div className={this.state.isNavCollapsed ? "collapse navbar-collapse" : "navbar-collapse"}>
+                        <ul className="navbar-nav mr-auto">
+                            <NavLink exact to={`/${this.state.shop}`} className={(this.props.playerName && this.props.serverId) ? `nav-link` : "nav-link active"}><li className="nav-item">Sākums</li></NavLink>
+                            {(this.props.playerName && this.props.serverId) ? pluginMenu : null}
+                            {(this.props.playerName && this.props.serverId) ? <li className="nav-item btn-warning"><a href="/logout" className="nav-link" onClick={(event) => this.handleLogout(event)}>Izlogoties</a></li> : ""}
+                        </ul>
+                        <form className="form-inline my-2 my-lg-0 color-white">
+                            {playerAvatar}
+                            {(this.props.playerName && this.props.serverId) ? `Sveiks, ${this.props.playerName}` : null}
+                        </form>
+                    </div>
+                </nav>
                 <div className="card mb-3">
                     <div className="card-body">
-                        <h3 className="mb-0" style={{textAlign: 'center'}}>{this.props.shop.title}</h3>
-                        <h3 className="mb-0"><center>{(this.props.playerName && this.props.serverId) ? `Sveiks, ${this.props.playerName}` : null}</center></h3>
-                        <ul className="nav nav-pills">
-                        <NavLink exact to={`/${this.state.shop}`} className="nav-link"><li className="nav-item">Sākums</li></NavLink>
-                            {pluginMenu}
-                            {(this.props.playerName && this.props.serverId) ? <li className="nav-item"><a href="/logout" className="nav-link" onClick={(event) => this.handleLogout(event)}>Izlogoties</a></li> : ""}
-                        </ul>
                         <div className="row no-gutters">
                             <div className="col-lg-8 pr-lg-2">
                                 { (this.props.playerName === null || this.props.serverId === null) ? playerNameForm : plugins}

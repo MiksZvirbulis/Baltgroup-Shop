@@ -9,7 +9,7 @@ const LastPurchases = props => {
                 <div className="notification notification-flush bg-200" href="">
                     <div className="notification-avatar">
                     <div className="avatar avatar-2xl mr-3">
-                        <img className="rounded-circle" src={avatarLink} alt={item.form.nickname} />
+                        <img src={avatarLink} alt={item.form.nickname} />
                     </div>
                     </div>
                     <div className="notification-body">

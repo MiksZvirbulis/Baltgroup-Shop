@@ -1,7 +1,7 @@
 export default {
     PAYMENT_API: '',
     SHOP_API: '',
-    GATEWAY_API: '',
+    GATEWAY_API: ,
     PAYPAL_SANDBOX_ID: '',
     PAYPAL_PRODUCTION_ID: '',
     PAYPAL_BTN_STYLE: {
